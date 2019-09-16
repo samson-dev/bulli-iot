@@ -15,14 +15,24 @@
 #define ENABLE_GxEPD2_GFX 0
 
 #include <GxEPD2_BW.h>
-#include <GxEPD2_3C.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMono9pt7b.h>
 
-GxEPD2_BW<GxEPD2_420, GxEPD2_420::HEIGHT> display;
+#if defined(ESP32)
+GxEPD2_BW<GxEPD2_420, GxEPD2_420::HEIGHT> display(GxEPD2_420(/*CS=15*/ 5, /*DC=4*/ 17, /*RST=5*/ 16, /*BUSY=16*/ 4));
+//GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25));
+#endif
 
-void init_display_battery(display initDisplay){
-  display = initDisplay;
+//EXample value and descriptions
+const char HeaderPower[] = "- Strom/Boardnetz -";
+const char Voltage[] = "Boardspannung (V): ";
+float Volt = 13.7;
+int k =155;
+const char StatusVoltage[] = "Netzstatus: Using Battery";
+
+void init_display_battery(){
+  display.init(115200);
+  display.setRotation(1);
 }
 
 void printBatteryCallback(const void*){
@@ -40,7 +50,7 @@ void printBatteryCallback(const void*){
 }
 
 
-void printBattery(display ){
+void printBattery(){
     display.setPartialWindow(0, 125, 160, 50); 
     display.drawPaged(printBatteryCallback, 0); 
 }
@@ -58,9 +68,9 @@ void printVoltage()
 {
   uint16_t x = 0;
   uint16_t y = 200;
-  display.setRotation(0);
+  display.setRotation(1);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
   display.setPartialWindow(0, y - 14, display.width(), 20);
-  display.drawPaged(helloEpaperCallback, 0);
+  display.drawPaged(printVoltageCallback, 0);
 }
