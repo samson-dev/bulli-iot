@@ -21,6 +21,8 @@
 const char Temperature[] = "18,8 Grad / 51%";
 const char Datum[] = "09.09.2019";
 const char Uhrzeit[] = "16:23";
+int delaytime = 5000;
+bool netz = false;
 
 
 void setup() {
@@ -31,12 +33,23 @@ void setup() {
 }
 
 void loop() {
+  netz = true;
   printBattery();
-  if(Volt > 10)
+  printPowerStatus();
+  if(Volt >= 4)
     printVoltage();
-  Volt--;
-  k=k-5;
-  delay(5000);
+  else 
+       netz = false;
+  //Volt--;
+  if(k>0)
+    k=k-5;
+  display.setRotation(1);
+  //display.drawImage(myBitmap, 317, 210, 83, 90);
+  if(netz ==true)
+    delaytime = 200;
+   else
+    delaytime = 5000;
+  delay(delaytime);
 }
 
 void init_display() { //INIT Display technically and basic structure
@@ -48,12 +61,17 @@ void init_display() { //INIT Display technically and basic structure
   display.setFullWindow();
   display.fillScreen(GxEPD_WHITE);
   //Print template structure
-  //printHeader();
-  display.setCursor(15, 105);
+  printHeader();
+  int16_t tbx, tby; uint16_t tbw, tbh;
+  display.getTextBounds(HeaderPower, 0, 0, &tbx, &tby, &tbw, &tbh);
+  // center bounding box by transposition of origin:
+  uint16_t x = ((display.width() - tbw) / 2) - tbx;
+  uint16_t y = ((display.height() - tbh) / 2) - tby;
+  display.setCursor(x, 105);
   display.print(HeaderPower);
   display.display();
-  display.setRotation(1);
-  //display.drawImage(myBitmap, 0, 0, 90, 83);
+  //display.setRotation(1);
+  display.drawImage(myBitmap, 317, 210, 83, 90);
 }
 
 void printDateBox(){
@@ -69,5 +87,5 @@ void printDateBox(){
 }
 
 void printHeader(){
-    display.fillRect(0, 0, (display.width()-95), 83, GxEPD_BLACK);
+    display.fillRect(0, 0, (display.width()-90), 88, GxEPD_BLACK);
 }
